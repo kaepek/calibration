@@ -1,0 +1,50 @@
+{
+  "name": "calibration",
+  "version": "1.3.0",
+  "description": "Calibration library for synchronising bldc motor voltage models with digital absolute position rotary encoders",
+  "main": "combine-multicapture-files.js",
+  "scripts": {
+    "generate:docs": "rm -rf docs/ && jsdoc -R ./README.md -d docs ./network-multicapture-source.js ./network-multicapture-sync.js ./combine-multicapture-files.js",
+    "install:venv": "python3 -m venv env",
+    "install:venv-deps": "pip3 install -r  pip.freeze && pip3 install -e .",
+    "test:venv": "python3 test-env.py",
+    "combine:rotation-voltage-network-data": "npm run test:venv && python3 ./network-multicapture-combine.py ${npm_config_run_id}",
+    "smooth:rotation-voltage-data": "npm run test:venv && python3 smooth-rotation-voltage-data.py ${npm_config_run_id}",
+    "inspect:rotation-voltage-data": "npm run test:venv && bokeh serve --port 8033 --show tune-rotation-voltage-data-smoothing.py --args ${npm_config_run_id}",
+    "detect:zero-crossing": "npm run test:venv && python3 zero-cross-spark.py ${npm_config_run_id}",
+    "cluster:zero-crossing": "npm run test:venv && python3 zero-cross-cluster-data.py ${npm_config_run_id} ${npm_config_number_of_poles} zero_crossing_detections.channels.all.json kmedoids_clustered_zero_crossing_channel_detections.all.json",
+    "analyse:zero-crossing-channel-clusters": "npm run test:venv && python3 analyse-zero-cross-cluster-data.py ${npm_config_run_id} kmedoids_clustered_zero_crossing_channel_detections.all.json kmedoids_clustered_zero_crossing_channel_detections.all.analysis.json",
+    "inspect:zero-crossing": "npm run test:venv && python3 zero-cross-inspect.py ${npm_config_run_id}",
+    "cluster-inliers:zero-crossing": "npm run test:venv && python3 zero-cross-cluster-data.py ${npm_config_run_id} ${npm_config_number_of_poles} zero_crossing_detections.channels.inliers.json kmedoids_clustered_zero_crossing_channel_detections.inliers.json",
+    "analyse-inliers:zero-crossing-channel-clusters": "npm run test:venv && python3 analyse-zero-cross-cluster-data.py ${npm_config_run_id} kmedoids_clustered_zero_crossing_channel_detections.inliers.json kmedoids_clustered_zero_crossing_channel_detections.inliers.analysis.json",
+    "inspect-inliers:zero-crossing": "npm run test:venv && python3 zero-cross-inspect-inliers.py ${npm_config_run_id}",
+    "perform-all-analysis": "npm run combine:rotation-voltage-network-data --run_id=${npm_config_run_id} > ./calibration-data/${npm_config_run_id}/combine.performance.txt && npm run smooth:rotation-voltage-data --run_id=${npm_config_run_id} && npm run detect:zero-crossing --run_id=${npm_config_run_id} && npm run cluster:zero-crossing --run_id=${npm_config_run_id} --number_of_poles=14 && npm run analyse:zero-crossing-channel-clusters --run_id=${npm_config_run_id} && npm run inspect:zero-crossing --run_id=${npm_config_run_id} && npm run cluster-inliers:zero-crossing --run_id=${npm_config_run_id} --number_of_poles=14 && npm run analyse-inliers:zero-crossing-channel-clusters --run_id=${npm_config_run_id} && npm run inspect-inliers:zero-crossing --run_id=${npm_config_run_id}",
+    "perform-clustering-analysis": "npm run detect:zero-crossing --run_id=${npm_config_run_id} && npm run cluster:zero-crossing --run_id=${npm_config_run_id} --number_of_poles=14 && npm run analyse:zero-crossing-channel-clusters --run_id=${npm_config_run_id} && npm run inspect:zero-crossing --run_id=${npm_config_run_id} && npm run cluster-inliers:zero-crossing --run_id=${npm_config_run_id} --number_of_poles=14 && npm run analyse-inliers:zero-crossing-channel-clusters --run_id=${npm_config_run_id} && npm run inspect-inliers:zero-crossing --run_id=${npm_config_run_id}",
+    "network-serial:collect-sync": "node network-multicapture-sync.js 8132 ${npm_config_run_id}",
+    "network-serial:collect-source": "node network-multicapture-source.js ${npm_config_device_id} /dev/ttyACM0 ${npm_config_sync_host} 8132 ${npm_config_seconds_to_collect}",
+    "combine-datasets:zero-crossing-inliers": "python3 combine-rotation-datasets-cw-and-ccw.py ${npm_config_run_ids}",
+    "fit-sine:zc": "python3 analysis-zc-reconstruct.py ${npm_config_combination_identifier}",
+    "fit-sine:raw": "python3 analysis-raw-reconstruct.py ${npm_config_combination_identifier}"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaepek/calibration.git"
+  },
+  "config": {
+    "spark": {
+      "master": "spark://localhost:6060",
+      "local-interface": "lo",
+      "project_file_dependencies": [
+        "kmedoids2.py",
+        "metrics.py",
+        "analyse.py"
+      ]
+    }
+  },
+  "author": "",
+  "license": "AGPL3",
+  "bugs": {
+    "url": "https://github.com/kaepek/issues"
+  },
+  "homepage": "https://github.com/kaepek/calibration#readme"
+}

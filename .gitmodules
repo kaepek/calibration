@@ -1,0 +1,8 @@
+[submodule "circuits/sbldc-smt"]
+	path = circuits/sbldc-smt
+	url = git@github.com:kaepek/sbldc-smt.git
+	branch = RELEASE/v2.4.0
+[submodule "external/kaepek-encoder"]
+	path = external/kaepek-encoder
+	url = git@github.com:kaepek/encoder.git
+	branch = RELEASE/v1.0.0
