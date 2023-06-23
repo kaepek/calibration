@@ -1,4 +1,3 @@
-# (c) 2020 Jonathan Kelsey
 from types import FunctionType
 from pyspark.sql import functions as F
 import pyspark
