@@ -1,5 +1,4 @@
 # (c) 2020 Jonathan Kelsey
-# This code is licensed under MIT license
 from types import FunctionType
 from pyspark.sql import functions as F
 import pyspark
