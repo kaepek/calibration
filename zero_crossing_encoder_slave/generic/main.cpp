@@ -1,14 +1,14 @@
 #include <Arduino.h>
 #include <imxrt.h>
 #include "log.cpp"
-#include "generic-encoder/digital_encoder.hpp"
+#include "teensy40-AS5147P-rotary-encoder/generic/digital_rotary_encoder.hpp"
 #define PIN_TEENSY_SLAVE_RESET 3
 #define PIN_TEENSY_SLAVE_CLK 21
 
 volatile uint32_t TIME_CTR = 0;
 volatile int DEBOUNCE_DISTANCE_RESET = 1;
 elapsedMicros delta_time;
-kaepek::DigitalEncoderSPI encoder;
+kaepek::DigitalRotaryEncoderSPI encoder;
 
 void MASTER_RESET_FALLING() {
   // debounce
@@ -39,7 +39,7 @@ void MASTER_CLK_FALLING() {
   sei(); 
 }
 
-void slave_input_setup(kaepek::DigitalEncoderSPI _encoder) {
+void slave_input_setup(kaepek::DigitalRotaryEncoderSPI _encoder) {
   pinMode(PIN_TEENSY_SLAVE_CLK, INPUT);
   pinMode(PIN_TEENSY_SLAVE_RESET, INPUT);
 
