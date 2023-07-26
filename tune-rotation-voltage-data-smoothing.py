@@ -20,9 +20,9 @@ import CyKalman
 #theta_resolution_error = 40.0
 #jerk_error = 0.000000000001
 
-alpha = 0.000000000005 #50000.0
+alpha = 0.0000000005 #50000.0
 theta_resolution_error = 0.00001 #40.0
-jerk_error = 0.000000000001 # 0.000000000001
+jerk_error = 0.0000000001 # 0.000000000001
 
 # self, double alpha, double x_resolution_error, double x_jerk_error, bint time_is_relative = False, double x_mod_limit =-1
 # 50000.0,40.0,0.000000000001, 

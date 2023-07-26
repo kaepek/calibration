@@ -6,4 +6,5 @@ netifaces==0.10.4
 pyarrow==8.0.0
 scipy==1.10.0
 colour==0.1.5
+matplotlib==3.7.2
 CyKalman @ git+https://github.com/kaepek/kalman.git@0676df3e41dc06b379a6dc3932c2f7529ae5b74a
