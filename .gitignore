@@ -2,3 +2,4 @@ __pycache__
 calibration-data/
 env/
 .vscode/
+node_modules/
