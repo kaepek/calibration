@@ -85,9 +85,9 @@ Need two computers to collect clean data from this setup. One needs to be a lapt
 7. Unplug and replug Teensy 4.0 #1 into computer #1 (forcing a reset).
 8. Start the network sync program on computer #1 and provide a name for this data collection run e.g. 'aug_18_test_1'. `npm run network-serial:collect-sync --run_id=aug_18_test_1`. 
 9. SSH to computer #2.
-10. Start the network source program on computer #2. `npm run network-serial:collect-source --device_id=1 --sync_host=10.0.0.110` .
+10. Start the network source program on computer #2. `npm run network-serial:collect-source --device_id=1 --sync_host=10.0.0.110 --seconds_to_collect=2` .
 11. Use a power drill to spin the motor at a constant high angular velocity.
-12. Start the network source program on computer #1. `npm run network-serial:collect-source --device_id=0 --sync_host=0.0.0.0` .
+12. Start the network source program on computer #1. `npm run network-serial:collect-source --device_id=0 --sync_host=0.0.0.0 --seconds_to_collect=2` .
 13. After you are happy enough data has been collected stop collection by unplugging Teensy 4.0 #1.
 14. Ensure `network-serial:collect-source` is stopped for both computers. By typing `Ctrl-c` into the relevant terminal sessions.
 15. At this point the `network-serial:collect-sync` will merge the dataset and create an output file `./calibration-data/[run_id].jsonl` on computer #1. If this does not work try manually merging the files, see the next section below, otherwise move on to data analysis.
