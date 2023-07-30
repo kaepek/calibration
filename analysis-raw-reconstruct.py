@@ -69,7 +69,7 @@ phase_current_displacement_cw = params_cw[1]
 
 print("Fitting ccw model")
 ccw_voltage_data = np.asarray([data_to_fit_ccw[1], data_to_fit_ccw[2], data_to_fit_ccw[3]]).ravel()
-params_ccw, cov_ccw = curve_fit(model, xdata=data_to_fit_ccw[0], ydata=ccw_voltage_data, p0=[0, utils.deg_to_rad(240)], maxfev=max_iter)
+params_ccw, cov_ccw = curve_fit(model, xdata=data_to_fit_ccw[0], ydata=ccw_voltage_data, p0=[0, utils.deg_to_rad(120)], maxfev=max_iter)
 errors_ccw = np.sqrt(np.diag(cov_ccw))
 angular_displacement_ccw = params_ccw[0]
 phase_current_displacement_ccw = params_ccw[1]

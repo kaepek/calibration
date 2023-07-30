@@ -57,9 +57,10 @@ def model(angular_position, angular_displacement_cw, phase_current_displacement_
     return np.asarray([phase_a_current, phase_b_current, phase_c_current]).ravel()
 
 data_to_fit_cw = np.asarray([partial_sin_wave["data"]["a"], partial_sin_wave["data"]["b"], partial_sin_wave["data"]["c"]]).ravel()
-data_to_fit_ccw = -1.0 * np.asarray([partial_sin_wave["data"]["a"], partial_sin_wave["data"]["b"], partial_sin_wave["data"]["c"]]).ravel()
+data_to_fit_ccw = np.asarray([partial_sin_wave["data"]["c"], partial_sin_wave["data"]["b"], partial_sin_wave["data"]["a"]]).ravel()
 
-data_error_to_fit = np.asarray([partial_sin_wave["error"]["a"], partial_sin_wave["error"]["b"], partial_sin_wave["error"]["c"]]).ravel()
+cw_data_error_to_fit = np.asarray([partial_sin_wave["error"]["a"], partial_sin_wave["error"]["b"], partial_sin_wave["error"]["c"]]).ravel()
+ccw_data_error_to_fit = np.asarray([partial_sin_wave["error"]["c"], partial_sin_wave["error"]["b"], partial_sin_wave["error"]["a"]]).ravel()
 
 def deg_to_rad(deg):
     return deg * np.pi/180
@@ -73,19 +74,21 @@ def rad_to_step(rad):
 # fit the model to the data using the calculated Fourier coefficients
 # angular_position, angular_displacement_cw, phase_current_displacement_cw, *fourier_coefficients
 
-sigmaaaa= 1./(data_error_to_fit*data_error_to_fit)
-print("sigmaaaa done", json.dumps(list(sigmaaaa)))
+sigma_cw= 1./(cw_data_error_to_fit*cw_data_error_to_fit)
+print("sigma_cw done", json.dumps(list(sigma_cw)))
+sigma_ccw= 1./(ccw_data_error_to_fit*ccw_data_error_to_fit)
+print("sigma_ccw done", json.dumps(list(sigma_ccw)))
 
 print("Fitting final cw model.... please wait...")
 
 
-params_cw, cov_cw = curve_fit(model, xdata=partial_angle_data, ydata=data_to_fit_cw, p0=[0, deg_to_rad(240)], sigma=sigmaaaa, maxfev=max_iter)
+params_cw, cov_cw = curve_fit(model, xdata=partial_angle_data, ydata=data_to_fit_cw, p0=[0, deg_to_rad(240)], sigma=sigma_cw, maxfev=max_iter)
 errors_cw = np.sqrt(np.diag(cov_cw))
 angular_displacement_cw = params_cw[0]
 phase_current_displacement_cw = params_cw[1]
 
 
-params_ccw, cov_ccw = curve_fit(model, xdata=partial_angle_data, ydata=data_to_fit_ccw, p0=[0, deg_to_rad(240)], sigma=sigmaaaa, maxfev=max_iter)
+params_ccw, cov_ccw = curve_fit(model, xdata=partial_angle_data, ydata=data_to_fit_ccw, p0=[0, deg_to_rad(120)], sigma=sigma_ccw, maxfev=max_iter)
 errors_ccw = np.sqrt(np.diag(cov_ccw))
 angular_displacement_ccw = params_ccw[0]
 phase_current_displacement_ccw = params_ccw[1]

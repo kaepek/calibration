@@ -130,7 +130,11 @@ def combine_merged_smoothed_datasets(run_ids):
         return (angles_bin, anvn_bin, bnvn_bin, cnvn_bin)
     
     cw_data = merge_direction("cw", cw_data_raw, ccw_data_mapped_to_cw)
-    ccw_data = merge_direction("ccw", ccw_data_raw, cw_data_mapped_to_ccw)
+    ccw_data = (cw_data[0], cw_data[3], cw_data[2], cw_data[1])
+    #ccw_data = merge_direction("ccw", ccw_data_raw, cw_data_mapped_to_ccw)
+
+    print("ahhhhhhhhhhhhhhhh")
+    print("ah", ccw_data)
     return {"cw": cw_data, "ccw": ccw_data}
 """
 data_to_fit_cw[1][data_to_fit_cw[1] < 0] = 0
