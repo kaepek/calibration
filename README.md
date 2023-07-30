@@ -123,7 +123,7 @@ Need two computers to collect clean data from this setup. One needs to be a lapt
 10. Next we need to see the results of the re-analysis post outlier elimination.
   - `npm run inspect-inliers:zero-crossing --run_id=sept2`
 
-[Good ADC capture with Kalman filtering example output of smooth:rotation-voltage-data](./resources/kalman_smoothed_merged_capture_data.html)
+[Good ADC capture with Kalman filtering example output of smooth:rotation-voltage-data](./dist/kalman_smoothed_merged_capture_data.html)
 
 # Analysis super command
 
