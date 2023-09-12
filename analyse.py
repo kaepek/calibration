@@ -825,6 +825,8 @@ def mean_and_std_to_partial_sin_wave(new_mean):
     Determine for each channel which zc event happens first
 
     """
+
+    # todo this whole file needs a cleanup
     angles = [i for i in range(2**14)]
     channel_data_combined_single_transition = {"combined_channel_data": [], "angles":angles}
     channel_data_combined = {"a": [], "b": [], "c": [], "angles":angles}
@@ -867,22 +869,13 @@ def mean_and_std_to_partial_sin_wave(new_mean):
     #print("c_ordered_mean_lkv_tuple_list", c_ordered_mean_lkv_tuple_list)
     #print("----------------------------------------------------------")
 
-    def expand_zc_map(zc_lkv_tuple_list):
+    def expand_zc_map(zc_lkv_tuple_list, channel_name):
+        print("zc_lkv_tuple_list", zc_lkv_tuple_list) 
         combined_channel_data_with_midpoints = []
         for first, second in pairs(zc_lkv_tuple_list): # e.g. zc_channel_af_data
             first_descriptor = first[0]
             second_descriptor = second[1]
-            channel_name = None
-            if ["zc_channel_ar_data", "zc_channel_af_data"].__contains__(first_descriptor):
-                channel_name = "a"
-            elif ["zc_channel_br_data", "zc_channel_bf_data"].__contains__(first_descriptor):
-                channel_name = "b"
-            elif ["zc_channel_cr_data", "zc_channel_cf_data"].__contains__(first_descriptor):
-                channel_name = "c"
-            else:
-                raise "Hell"
             mid_point = circular_mean([first[2], second[2]])
-
             if "f_data" in first_descriptor:
                 # we had a falling edge first
                 combined_channel_data_with_midpoints.append([(channel_name, 0.0, first[2]), (channel_name, -1.0, mid_point), (channel_name, 0.0, second[2])])
@@ -893,23 +886,32 @@ def mean_and_std_to_partial_sin_wave(new_mean):
                 pass
             else:
                 raise "Hell"
+        # this neglects some midpoints. per channel need take first and last zero crossing and find midpoint.
+        first = zc_lkv_tuple_list[0]
+        last = zc_lkv_tuple_list[len(zc_lkv_tuple_list) - 1]
+        midpoint = circular_mean([first[2], last[2]])
+
+        if "f_data" in first[0]:
+            combined_channel_data_with_midpoints.append([(channel_name, +1.0, midpoint)])
+        elif "r_data" in first[0]:
+            combined_channel_data_with_midpoints.append([(channel_name, -1.0, midpoint)])
+        else:
+            raise "Hell"
+
         return list(reduce(lambda acc, it: acc + it, combined_channel_data_with_midpoints))
     
     # 
     # 
-    ah = list(map(lambda channel_name: expand_zc_map(ordered_zc_dist[channel_name]),combined_channel_names))
-    
+    ah = list(map(lambda channel_name: expand_zc_map(ordered_zc_dist[channel_name], channel_name),combined_channel_names))
 
-
-    
     flattened_combined_data_with_midpoints = list(reduce(lambda acc, it: acc + it, ah))
     #print("flattened_combined_data_with_midpoints", flattened_combined_data_with_midpoints)
     sorted_flattened_combined_data_with_midpoints = sorted(flattened_combined_data_with_midpoints, key=lambda x: x[2])
     #print("sorted_flattened_combined_data_with_midpoints")
     #print(sorted_flattened_combined_data_with_midpoints)
-    print("0------------------------")
-    print("sorted_flattened_combined_data_with_midpoints", sorted_flattened_combined_data_with_midpoints)
-    print("0------------------------")
+    #print("0------------------------")
+    #print("sorted_flattened_combined_data_with_midpoints", sorted_flattened_combined_data_with_midpoints)
+    #print("0------------------------")
 
     final_output_data = {"angles": [], "a": [], "b": [], "c": []}
     final_output_error = {"a": [], "b": [], "c": []}
