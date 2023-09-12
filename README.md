@@ -127,10 +127,10 @@ Need two computers to collect clean data from this setup. One needs to be a lapt
 
 # Analysis super command
 
-`npm run perform-all-analysis --run_id=[run_id]`
+`npm run perform-all-analysis --run_id=[run_id] --number_of_poles=[number of poles]`
 
-`npm run perform-all-analysis --run_id=16sept_4_cw`
-`npm run perform-all-analysis --run_id=16sept_ccw`
+`npm run perform-all-analysis --run_id=16sept_4_cw --number_of_poles=22`
+`npm run perform-all-analysis --run_id=16sept_ccw --number_of_poles=22`
 
 # Combing cw/ccw runs
 
@@ -144,11 +144,11 @@ a set of results.
 
 One can fit a sine wave to the zc data:
 
-`npm run fit-sine:zc --combination_identifier=lqwkwldkjpvgmrbeqcop`
+`npm run fit-sine:zc --combination_identifier=lqwkwldkjpvgmrbeqcop --number_of_poles=22`
 
 One can fit a sine wave to the raw voltage data:
 
-`npm run fit-sine:raw --combination_identifier=lqwkwldkjpvgmrbeqcop`
+`npm run fit-sine:raw --combination_identifier=lqwkwldkjpvgmrbeqcop --number_of_poles=22`
 
 # Troubleshooting:
 

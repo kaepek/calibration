@@ -6,11 +6,14 @@ import matplotlib.pyplot as plt
 import analyse
 
 # constants
-poles = 14
+poles = 22
 max_iter = 500000
 number_of_coefficients = 1
 
 combined_zc_map_id = sys.argv[1] if len(sys.argv) > 1 else 0
+poles = sys.argv[2] if len(sys.argv) > 2 else 0
+poles = int(poles)
+print("poles", poles)
 file_in_json_location = 'calibration-data/zc_map_%s.json' % (combined_zc_map_id)
 # ymhflwqnmomcaameuhzc
 

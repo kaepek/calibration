@@ -7,12 +7,15 @@ import analyse
 import utils
 import models
 import plots
-poles = 14
+poles = 22
 max_iter = 500000
 
 
 
 combined_identifier = sys.argv[1] if len(sys.argv) > 1 else 0 # zc_map_id
+poles = sys.argv[2] if len(sys.argv) > 2 else 0
+poles = int(poles)
+print("poles", poles)
 run_ids_str = None
 
 with open("./calibration-data/combination-report-%s.id" % (combined_identifier)) as fin:
