@@ -132,6 +132,82 @@ def combine_merged_smoothed_datasets(run_ids):
     cw_data = merge_direction("cw", cw_data_raw, ccw_data_mapped_to_cw)
     ccw_data = merge_direction("ccw", ccw_data_raw, cw_data_mapped_to_ccw)
     return {"cw": cw_data, "ccw": ccw_data}
+
+def combine_merged_smoothed_datasets_2(run_ids):
+    print("run_ids", run_ids)
+    cw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == False, run_ids))
+    ccw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == True, run_ids))
+    cw_data_raw = mmap(lambda run_id: (run_id, get_smoothed_voltage_data(run_id)), cw_run_ids)
+    ccw_data_raw = mmap(lambda run_id: (run_id, get_smoothed_voltage_data(run_id)), ccw_run_ids)
+    # map cw to ccw and ccw to cw
+    # each looks like ..... (run_id,[time,angle, anvn, bnvn, cnvn])
+    cw_data_mapped_to_ccw = mmap(lambda cw_data: (cw_data[0], cw_data[1][0], (cw_data[1][1]), -1.0 * cw_data[1][2], -1.0*cw_data[1][3], -1.0*cw_data[1][4]), cw_data_raw)
+    ccw_data_mapped_to_cw = mmap(lambda ccw_data: (ccw_data[0], ccw_data[1][0], (ccw_data[1][1]), -1.0 * ccw_data[1][2], -1.0*ccw_data[1][3], -1.0*ccw_data[1][4]), ccw_data_raw)
+    
+    # convert raw data encoder values
+    cw_data_raw = mmap(lambda cw_data: (cw_data[0], cw_data[1][0], (cw_data[1][1]), cw_data[1][2], cw_data[1][3], cw_data[1][4]), cw_data_raw)
+    ccw_data_raw = mmap(lambda ccw_data: (ccw_data[0], ccw_data[1][0], (ccw_data[1][1]), ccw_data[1][2], ccw_data[1][3], ccw_data[1][4]), ccw_data_raw)
+
+
+    def mute_neg_voltages(merged_direction, run_direction, a, b, c):
+        if merged_direction == False:
+            if run_direction == True:
+                pass #cw loose -ve voltages
+                a[a>0]=0
+                b[b>0]=0
+                c[c>0]=0
+            elif run_direction == False:
+                pass #ccw loose +ve voltages
+                a[a<0]=0
+                b[b<0]=0
+                c[c<0]=0
+        elif merged_direction == True:
+            if run_direction == True:
+                pass #cw loose -ve voltages
+                a[a<0]=0
+                b[b<0]=0
+                c[c<0]=0
+            elif run_direction == False:
+                pass #ccw loose +ve voltages
+                a[a>0]=0
+                b[b>0]=0
+                c[c>0]=0
+        return (a, b, c)
+
+    def merge_direction(merge_direction, raw, mapped):
+        merge_direction = determine_direction(merge_direction) #False is cw True is ccw
+        # merge and flatten raw
+        angles_bin = np.asarray([], dtype=np.float64)
+        anvn_bin = np.asarray([], dtype=np.float64)
+        bnvn_bin = np.asarray([], dtype=np.float64)
+        cnvn_bin = np.asarray([], dtype=np.float64)
+        # 
+
+        for run_id, times, angles, anvns, bnvns, cnvns in raw:
+            run_direction = determine_direction(run_id) #False is cw True is ccw
+            (anvns, bnvns, cnvns) = mute_neg_voltages(merge_direction, run_direction, anvns, bnvns, cnvns)
+            angles_bin = np.concatenate((angles_bin, angles), axis=0)
+            anvn_bin = np.concatenate((anvn_bin, anvns), axis=0)
+            bnvn_bin = np.concatenate((bnvn_bin, bnvns), axis=0)
+            cnvn_bin = np.concatenate((cnvn_bin, cnvns), axis=0)
+
+        for run_id, times, angles, anvns, bnvns, cnvns in mapped:
+            run_direction = determine_direction(run_id) #False is cw True is ccw
+            (anvns, bnvns, cnvns) = mute_neg_voltages(merge_direction, run_direction, anvns, bnvns, cnvns)
+            angles_bin = np.concatenate((angles_bin, angles), axis=0)
+            anvn_bin = np.concatenate((anvn_bin, anvns), axis=0)
+            bnvn_bin = np.concatenate((bnvn_bin, bnvns), axis=0)
+            cnvn_bin = np.concatenate((cnvn_bin, cnvns), axis=0)
+
+        return (angles_bin, anvn_bin, bnvn_bin, cnvn_bin)
+    
+    cw_data = merge_direction("cw", cw_data_raw, ccw_data_mapped_to_cw)
+    ccw_data = merge_direction("ccw", ccw_data_raw, cw_data_mapped_to_ccw)
+    return {"cw": cw_data, "ccw": ccw_data}
+
+
+
+
 """
 data_to_fit_cw[1][data_to_fit_cw[1] < 0] = 0
 data_to_fit_cw[2][data_to_fit_cw[2] < 0] = 0
