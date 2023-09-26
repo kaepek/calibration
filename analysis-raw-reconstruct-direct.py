@@ -67,7 +67,7 @@ binned_angle_abc_data["ccw"] = OrderedDict()
 }"""
 
 for key in combined_data.keys():
-    for angle in range(0, 16384):
+    for angle in range(0, 16383):
         angle_str = str((angle/16384) * 2 * np.pi)
         binned_angle_abc_data[key][angle_str] = {"a":[], "b":[], "c":[]}
 
@@ -110,8 +110,36 @@ averaged_binned_angle_abc_data = {
         "c": []
     }
 }
+
+angle_compression = 8
+binned_voltage_data = OrderedDict()
+binned_voltage_data["cw"] = OrderedDict()
+binned_voltage_data["ccw"] = OrderedDict()
+
+max_compressed_value = 16384 / angle_compression
+
+for key in combined_data.keys():
+    for angle_idx in range(0, 16384):
+        angle = angle_idx / angle_compression
+        nearest_angle_bin = round(angle)
+        if (nearest_angle_bin >= max_compressed_value):
+            nearest_angle_bin = 0
+        str_nearest_angle_bin = str(nearest_angle_bin)
+        #angle_str = str((angle_idx/16384) * 2 * np.pi)
+        #binned_angle_abc_data[key][angle_str]# = {"a":[], "b":[], "c":[]}
+        binned_voltage_data["cw"][str_nearest_angle_bin] = {"a":[], "b":[], "c":[]}
+        binned_voltage_data["ccw"][str_nearest_angle_bin] = {"a":[], "b":[], "c":[]}
+
+print("binned_voltage_data", binned_voltage_data)
+
 for key in combined_data.keys():
     for angle_str in binned_angle_abc_data[key]:
+        #angle_str = str((angle_idx/16384) * 2 * np.pi)
+        angle_idx = 16384 * (float(angle_str) / (2 * np.pi))
+        compressed_angle_idx = round(angle_idx/angle_compression)
+        if (compressed_angle_idx >= max_compressed_value):
+            compressed_angle_idx = 0
+        compressed_angle_str = str(compressed_angle_idx)
         m_a = binned_angle_abc_data[key][angle_str]["a"] # filter for 0
         m_b = binned_angle_abc_data[key][angle_str]["b"]
         m_c = binned_angle_abc_data[key][angle_str]["c"]
@@ -121,17 +149,20 @@ for key in combined_data.keys():
         else:
             mean_a = 0
         averaged_binned_angle_abc_data[key]["a"].append(mean_a)
+        binned_voltage_data[key][compressed_angle_str]["a"].append(mean_a)
 
         if len(m_b) > 0:
             mean_b = np.mean(np.asarray(m_b))
         else:
             mean_b = 0
         averaged_binned_angle_abc_data[key]["b"].append(mean_b)
+        binned_voltage_data[key][compressed_angle_str]["b"].append(mean_b)
 
         if len(m_c) > 0:
             mean_c = np.mean(np.asarray(m_c))
         else:
             mean_c = 0
+        binned_voltage_data[key][compressed_angle_str]["c"].append(mean_c)
 
         averaged_binned_angle_abc_data[key]["c"].append(mean_c)
 
@@ -150,6 +181,10 @@ print('len averaged_binned_angle_abc_data["ccw"]["b"]', len(averaged_binned_angl
 print('len averaged_binned_angle_abc_data["ccw"]["c"]', len(averaged_binned_angle_abc_data["ccw"]["c"]))
 print('len averaged_binned_angle_abc_data["angles"]', len(averaged_binned_angle_abc_data["angles"]))
 print(averaged_binned_angle_abc_data["angles"])
+print("---------------------")
+print("binned_voltage_data", binned_voltage_data)
+
+# so take 
 
 cw_averaged_voltage_data = np.asarray([averaged_binned_angle_abc_data["cw"]["a"], averaged_binned_angle_abc_data["cw"]["b"], averaged_binned_angle_abc_data["cw"]["c"]]).ravel()
 ccw_averaged_voltage_data = np.asarray([averaged_binned_angle_abc_data["ccw"]["a"], averaged_binned_angle_abc_data["ccw"]["b"], averaged_binned_angle_abc_data["ccw"]["c"]]).ravel()
