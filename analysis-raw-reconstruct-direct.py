@@ -281,11 +281,50 @@ for angle_idx in range(len(averaged_compressed_binned_angle_abc_data["angles"]))
 
 csv_data = "\n".join(csv_lines)
 
+
+# now generate the cpp code
+def get_voltage_element(direction, channel, data):
+    lines = []
+    len_data = len(data)
+    len_data_minus_one = len_data - 1
+    lines.append("// %s voltage coefficient channel %s over %s compressed angular steps" % (direction, channel, str(len_data)))
+    lines.append("#define %s_%s_VOLTAGE_CHANNEL {\\" % (direction, channel))
+    for element_idx in range(len(data)):
+        element = data[element_idx]
+        if (element_idx == len_data_minus_one):
+            lines.append("%f }" % element)
+        else:
+            lines.append("%f,\\" % element)
+    return "\n".join(lines)
+
+def generate_voltage_map():
+    map_definition = "const float VOLTAGE_MAP[2][3][%i] = {{CW_A_VOLTAGE_CHANNEL, CW_B_VOLTAGE_CHANNEL, CW_C_VOLTAGE_CHANNEL},{CCW_A_VOLTAGE_CHANNEL, CCW_B_VOLTAGE_CHANNEL, CCW_C_VOLTAGE_CHANNEL}};" % (int(max_compressed_value))
+    cw_a = get_voltage_element("CW", "A", averaged_compressed_binned_angle_abc_data["cw"]["a"])
+    cw_b = get_voltage_element("CW", "B", averaged_compressed_binned_angle_abc_data["cw"]["b"])
+    cw_c = get_voltage_element("CW", "C", averaged_compressed_binned_angle_abc_data["cw"]["c"])
+    ccw_a = get_voltage_element("CCW", "A", averaged_compressed_binned_angle_abc_data["ccw"]["a"])
+    ccw_b = get_voltage_element("CCW", "B", averaged_compressed_binned_angle_abc_data["ccw"]["b"])
+    ccw_c = get_voltage_element("CCW", "C", averaged_compressed_binned_angle_abc_data["ccw"]["c"])
+    return "\n\n".join(
+        [
+            cw_a,
+            cw_b,
+            cw_c,
+            ccw_a,
+            ccw_b,
+            ccw_c,
+            map_definition
+        ]
+        )
+
 with open("./calibration-data/combination-direct-fit-%s.json" % (combined_identifier), "w") as fout:
     fout.write(json.dumps(averaged_compressed_binned_angle_abc_data))
 
 with open("./calibration-data/combination-direct-fit-%s.csv" % (combined_identifier), "w") as fout:
     fout.write(csv_data)
+
+with open("./calibration-data/combination-direct-fit-%s.cpp" % (combined_identifier), "w") as fout:
+    fout.write(generate_voltage_map())
 
 cw_averaged_voltage_data = np.asarray([averaged_binned_angle_abc_data["cw"]["a"], averaged_binned_angle_abc_data["cw"]["b"], averaged_binned_angle_abc_data["cw"]["c"]]).ravel()
 ccw_averaged_voltage_data = np.asarray([averaged_binned_angle_abc_data["ccw"]["a"], averaged_binned_angle_abc_data["ccw"]["b"], averaged_binned_angle_abc_data["ccw"]["c"]]).ravel()
