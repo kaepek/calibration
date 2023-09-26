@@ -1,0 +1,33 @@
+{
+    "inputs": [
+        {"name":"compressed_angle", "position": 0},
+        {"name":"cw_a", "position": 1},
+        {"name":"cw_b", "position": 2},
+        {"name": "cw_c", "position": 3},
+        {"name": "ccw_a", "position": 4},
+        {"name": "ccw_b", "position": 5},
+        {"name": "ccw_c", "position": 6}
+    ],
+    "buffer_length": 300,
+    "plots": [
+        {
+            "name": "cw direct fit",
+            "independant_column": "compressed_angle",
+            "dependant_columns": [
+                {"name":"cw_a", "color": "red"},
+                {"name":"cw_b", "color": "yellow"},
+                {"name":"cw_c", "color": "black"}
+
+            ]
+        },
+        {
+            "name": "ccw direct fit",
+            "independant_column": "compressed_angle",
+            "dependant_columns": [
+                {"name":"ccw_a", "color": "red"},
+                {"name":"ccw_b", "color": "yellow"},
+                {"name":"ccw_c", "color": "black"}
+            ]
+        }
+    ]
+}
