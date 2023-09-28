@@ -72,7 +72,8 @@ for key in combined_data.keys():
         binned_angle_abc_data[key][angle_str] = {"a":[], "b":[], "c":[]}
 
 
-angle_compression = 8
+duty_max = 2047
+angle_compression = 4
 binned_voltage_data = OrderedDict()
 binned_voltage_data["cw"] = OrderedDict()
 binned_voltage_data["ccw"] = OrderedDict()
@@ -241,28 +242,29 @@ print("averaged_compressed_binned_angle_abc_data", averaged_compressed_binned_an
 # normalise the averaged_compressed_binned_angle_abc_data
 np_avg_comp_bin_cw_a = np.asarray(averaged_compressed_binned_angle_abc_data["cw"]["a"])
 np_avg_comp_bin_cw_a_max = np.max(np.abs(np_avg_comp_bin_cw_a))
-np_avg_comp_bin_cw_a = np_avg_comp_bin_cw_a / np_avg_comp_bin_cw_a_max
+np_avg_comp_bin_cw_a = np.round((((np_avg_comp_bin_cw_a / np_avg_comp_bin_cw_a_max))) * duty_max)
 averaged_compressed_binned_angle_abc_data["cw"]["a"] = np_avg_comp_bin_cw_a.tolist()
 np_avg_comp_bin_cw_b = np.asarray(averaged_compressed_binned_angle_abc_data["cw"]["b"])
 np_avg_comp_bin_cw_b_max = np.max(np.abs(np_avg_comp_bin_cw_b))
-np_avg_comp_bin_cw_b = np_avg_comp_bin_cw_b / np_avg_comp_bin_cw_b_max
+np_avg_comp_bin_cw_b = np.round((((np_avg_comp_bin_cw_b / np_avg_comp_bin_cw_b_max))) * duty_max)
 averaged_compressed_binned_angle_abc_data["cw"]["b"] = np_avg_comp_bin_cw_b.tolist()
 np_avg_comp_bin_cw_c = np.asarray(averaged_compressed_binned_angle_abc_data["cw"]["c"])
 np_avg_comp_bin_cw_c_max = np.max(np.abs(np_avg_comp_bin_cw_c))
-np_avg_comp_bin_cw_c = np_avg_comp_bin_cw_c / np_avg_comp_bin_cw_c_max
+np_avg_comp_bin_cw_c = np.round((((np_avg_comp_bin_cw_c / np_avg_comp_bin_cw_c_max))) * duty_max)
 averaged_compressed_binned_angle_abc_data["cw"]["c"] = np_avg_comp_bin_cw_c.tolist()
 np_avg_comp_bin_ccw_a = np.asarray(averaged_compressed_binned_angle_abc_data["ccw"]["a"])
 np_avg_comp_bin_ccw_a_max = np.max(np.abs(np_avg_comp_bin_ccw_a))
-np_avg_comp_bin_ccw_a = np_avg_comp_bin_ccw_a / np_avg_comp_bin_ccw_a_max
+np_avg_comp_bin_ccw_a = np.round((((np_avg_comp_bin_ccw_a / np_avg_comp_bin_ccw_a_max))) * duty_max)
 averaged_compressed_binned_angle_abc_data["ccw"]["a"] = np_avg_comp_bin_ccw_a.tolist()
 np_avg_comp_bin_ccw_b = np.asarray(averaged_compressed_binned_angle_abc_data["ccw"]["b"])
 np_avg_comp_bin_ccw_b_max = np.max(np.abs(np_avg_comp_bin_ccw_b))
-np_avg_comp_bin_ccw_b = np_avg_comp_bin_ccw_b / np_avg_comp_bin_ccw_b_max
+np_avg_comp_bin_ccw_b = np.round((((np_avg_comp_bin_ccw_b / np_avg_comp_bin_ccw_b_max))) * duty_max)
 averaged_compressed_binned_angle_abc_data["ccw"]["b"] = np_avg_comp_bin_ccw_b.tolist()
 np_avg_comp_bin_ccw_c = np.asarray(averaged_compressed_binned_angle_abc_data["ccw"]["c"])
 np_avg_comp_bin_ccw_c_max = np.max(np.abs(np_avg_comp_bin_ccw_c))
-np_avg_comp_bin_ccw_c = np_avg_comp_bin_ccw_c / np_avg_comp_bin_ccw_c_max
+np_avg_comp_bin_ccw_c = np.round((((np_avg_comp_bin_ccw_c / np_avg_comp_bin_ccw_c_max))) * duty_max)
 averaged_compressed_binned_angle_abc_data["ccw"]["c"] = np_avg_comp_bin_ccw_c.tolist()
+# range is currently +1 to -1 and we want to shift to have what? 0 -> 1
 
 # create csv from averaged_compressed_binned_angle_abc_data
 
@@ -292,13 +294,13 @@ def get_voltage_element(direction, channel, data):
     for element_idx in range(len(data)):
         element = data[element_idx]
         if (element_idx == len_data_minus_one):
-            lines.append("%f }" % element)
+            lines.append("%d }" % element)
         else:
-            lines.append("%f,\\" % element)
+            lines.append("%d,\\" % element)
     return "\n".join(lines)
 
 def generate_voltage_map():
-    map_definition = "const float VOLTAGE_MAP[2][3][%i] = {{CW_A_VOLTAGE_CHANNEL, CW_B_VOLTAGE_CHANNEL, CW_C_VOLTAGE_CHANNEL},{CCW_A_VOLTAGE_CHANNEL, CCW_B_VOLTAGE_CHANNEL, CCW_C_VOLTAGE_CHANNEL}};" % (int(max_compressed_value))
+    map_definition = "const int16_t VOLTAGE_MAP[2][3][%i] = {{CW_A_VOLTAGE_CHANNEL, CW_B_VOLTAGE_CHANNEL, CW_C_VOLTAGE_CHANNEL},{CCW_A_VOLTAGE_CHANNEL, CCW_B_VOLTAGE_CHANNEL, CCW_C_VOLTAGE_CHANNEL}};" % (int(max_compressed_value))
     cw_a = get_voltage_element("CW", "A", averaged_compressed_binned_angle_abc_data["cw"]["a"])
     cw_b = get_voltage_element("CW", "B", averaged_compressed_binned_angle_abc_data["cw"]["b"])
     cw_c = get_voltage_element("CW", "C", averaged_compressed_binned_angle_abc_data["cw"]["c"])
@@ -317,13 +319,13 @@ def generate_voltage_map():
         ]
         )
 
-with open("./calibration-data/combination-direct-fit-%s.json" % (combined_identifier), "w") as fout:
+with open("./calibration-data/combination-direct-comp2-fit-%s.json" % (combined_identifier), "w") as fout:
     fout.write(json.dumps(averaged_compressed_binned_angle_abc_data))
 
-with open("./calibration-data/combination-direct-fit-%s.csv" % (combined_identifier), "w") as fout:
+with open("./calibration-data/combination-direct-comp2-fit-%s.csv" % (combined_identifier), "w") as fout:
     fout.write(csv_data)
 
-with open("./calibration-data/combination-direct-fit-%s.cpp" % (combined_identifier), "w") as fout:
+with open("./calibration-data/combination-direct-comp2-fit-%s.cpp" % (combined_identifier), "w") as fout:
     fout.write(generate_voltage_map())
 
 cw_averaged_voltage_data = np.asarray([averaged_binned_angle_abc_data["cw"]["a"], averaged_binned_angle_abc_data["cw"]["b"], averaged_binned_angle_abc_data["cw"]["c"]]).ravel()
@@ -360,7 +362,7 @@ plots.create_voltage_scatter(ax[3], cw_angles, ccw_averaged_voltage_data.reshape
 
 # save plot as file
 print("Saving plot.... please wait...")
-fout='calibration-data/raw_reconstruction_direct_%s.png' % (combined_identifier)
+fout='calibration-data/raw_reconstruction_direct_comp2_%s.png' % (combined_identifier)
 print(fout)
 fig.savefig(fout, pad_inches=0, bbox_inches='tight')
 
