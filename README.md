@@ -143,6 +143,8 @@ Then depending on which motor controller you are implementing (TC, SPWM, DPWM) y
 
 ### TC procedure
 
+The TC procdure will map angular segments of the motor to their commutation state. Such that microcontrollers can simply lookup the commutation state based on the angle that the encoder currently sits and therefore apply the correct commutation state as the motor proceeds around the circle. A map is generated for each direction.
+
 0. Run the (Combination and smoothing procedure)[]
 1. With data now smoothed to minimise zero-crossing detection errors you can apply zero-crossing detection. This will create a `zero_crossing_detections.channels.all.json` which contains grouped lists of angles for each channel cluster e.g. 'zc_channel_af_data' which stands for zero crossing channel phase A falling, where a given phaseA-vn crossed zero. Also a `zero_crossing_detections.histogram.all.json` file will be created which contains any zero crossing events for each channel organised by angle.
   - `npm run detect:zero-crossing --run_id=[run_id]`
@@ -161,36 +163,33 @@ Then depending on which motor controller you are implementing (TC, SPWM, DPWM) y
 
 For convenience one can run a single command to perform all off these steps (including the combination and smoothing procedure) for a given `run_id` using the following command:
 
-`npm run perform-tc-analysis --run_id=[run_id] --number_of_poles=[number of poles]`
+1. `npm run perform-tc-analysis --run_id=[run_id] --number_of_poles=[number of poles]`
 
 Then after inspecting the analysis for each run and determining a set of `run_id`s which represent good captures (no artifacts) one can then combine the multiple runs together and obtain the analysis reports and resulting fits for the TC procedure:
 
-`npm run combine-datasets:zero-crossing-inliers --run_ids=16sept_ccw,16sept_4_cw`
+2. `npm run combine-datasets:zero-crossing-inliers --run_ids=16sept_ccw,16sept_4_cw`
 
 A html file e.g. `combination-report-lqwkwldkjpvgmrbeqcop.html`, an id file e.g.
 `combination-report-lqwkwldkjpvgmrbeqcop.id` and a 6 step fit c++ file `commutation_state_lqwkwldkjpvgmrbeqcop.cpp` will be created in the [calibration-data folder](./calibration-data/), `lqwkwldkjpvgmrbeqcop` represents the identifier for the combined set of analysed run results.
 
 ### SPWM procedure
 
-0. Run the (Combination and smoothing procedure)[]
-1. With data now smoothed to minimise zero-crossing detection errors you can apply zero-crossing detection. This will create a `zero_crossing_detections.channels.all.json` which contains grouped lists of angles for each channel cluster e.g. 'zc_channel_af_data' which stands for zero crossing channel phase A falling, where a given phaseA-vn crossed zero. Also a `zero_crossing_detections.histogram.all.json` file will be created which contains any zero crossing events for each channel organised by angle.
-  - `npm run detect:zero-crossing --run_id=[run_id]`
-2. Now for each channel we should have `motor_poles/2` zero-crossing events, noise will prevent us knowing the exact angle where this happenes, we will in fact have a distribtion of points clustered around `motor_poles/2` centers... thus we can cluster the zero-crossing events into `motor_poles/2` groups. This will create a `kmedoids_clustered_zero_crossing_channel_detections.all.json` files, containing the clustered angles and their centroids (mean points) for each channel.
-  - `npm run cluster:zero-crossing --run_id=sept2 --number_of_poles=14`.
-3. Next we need to analyse how well the clustering went. Important metrics will be the mean point of each cluster, the standard deviation of each cluster and finally we need a map which identifes for each angle which channel cluster represents that point best if any. The following file is created showing this data `kmedoids_clustered_zero_crossing_channel_detections.all.analysis.json`.
-  - `npm run analyse:zero-crossing-channel-clusters --run_id=sept2`
-4. Next we need to see the results of the analysis, also we need to use the statistics generated to eliminate cluster outliers a program is provided to do this. A file `zero_crossing_detections.channels.outliers.json` is produced which contains the outliers detected for each channel, a file `zero_crossing_detections.channels.inliers.json` is produces which contain valid inliers per channel and finally a report file `zero_crossing_detections.channels.all.html` is generated to visualise this analysis.
-  - `npm run inspect:zero-crossing --run_id=sept2`
-5. Next with the outliers removed from the dataset and stored in their own file `zero_crossing_detections.channels.inliers.json`, we need to re-cluster the channels into `motor_poles/2` groups again to create a new file `kmedoids_clustered_zero_crossing_channel_detections.inliers.json`.
-  - `npm run cluster-inliers:zero-crossing --run_id=sept2 --number_of_poles=14`
-6. Next we need to re-analyse the re-clustered channel zero-crossing angles to create a new analysis file `kmedoids_clustered_zero_crossing_channel_detections.inliers.analysis.json`.
-  - `npm run analyse-inliers:zero-crossing-channel-clusters --run_id=sept2`
-7. Next we need to see the results of the re-analysis post outlier elimination.
-  - `npm run inspect-inliers:zero-crossing --run_id=sept2`
+The SPWM procedure will take the results from the TC/Smoothing procedure and do its best to fit 3 sinusoids to the data (for each phase), for each direction an angular displacement (degrees away from the 0th encoder step) and an angular phase displacement (the phase seperation between the 3 phases) which leads to the least squares error. Thus the motor constants can be used to create a lookup table within the motor controller so that for each direction the controller can apply an appropriate duty for each phase give an input which is the encoder step at any given time.
 
+1. Peform the same instructions as the [TC procedure section]()
+2. Fit a sinusoid model to the data using either of the following commands:
+    - Fit a sine wave to the zero crossing data obtained from the TC procedure: `npm run fit-sine:zc --combination_identifier=lqwkwldkjpvgmrbeqcop --number_of_poles=22`
+    - Fit a sine wave to the raw zero crossing data obtained from the TC procedure: `npm run fit-sine:raw --combination_identifier=lqwkwldkjpvgmrbeqcop --number_of_poles=22`
+
+Note the `fit-sine:zc` benefits from significant outlier reduction and so in most cases represents the superior method to obtaining the motor constant fits. Depending on the sinusoidal fit method run one can either obtains the motor constants from the following files in the [calibration folder](./calibration-data/), `zc_reconstruction_lqwkwldkjpvgmrbeqcop.png` which is the output of running the `fit-sine:zc` program or `raw_reconstruction_ynitlldoqesyyvgyuwyg.png` which is the ouput of running the `fit-sine:raw` program.
+
+The motor constants and their errors can be obtained in the title of the graph, you can inspect the graphs (the source data and the fit) and compare their extrema to gain some intuition as to the validity of the fit.
+
+Note these methods do assume that the motors are periodically consistant, which is often not the case in reality.
 
 ### DPWM procedure
 
+0. Run the (Combination and smoothing procedure)[]
 
 
 [Good ADC capture with Kalman filtering example output of smooth:rotation-voltage-data](./dist/kalman_smoothed_merged_capture_data.html)
