@@ -46,9 +46,6 @@ def determine_direction_from_data(run_id):
     else:
         return False
 
-    
-
-
 def deg_to_rad(deg):
     return deg * np.pi/180
 
@@ -72,17 +69,15 @@ def random_id():
 
 def combine_merged_smoothed_datasets(run_ids):
     print("run_ids", run_ids)
-    cw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == False, run_ids))
-    ccw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == True, run_ids))
+    #cw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == False, run_ids))
+    #ccw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == True, run_ids))
 
-    print("name determined cw directions", cw_run_ids)
-    print("name determined ccw directions", ccw_run_ids)
+    #print("name determined cw directions", cw_run_ids)
+    #print("name determined ccw directions", ccw_run_ids)
 
     data_determined_directions = list(map(lambda run_id: [run_id, determine_direction_from_data(run_id)], run_ids))
-    cw_run_ids_from_data = list(map(lambda cw_run_id_direction: cw_run_id_direction[0], filter(lambda run_id_direction: run_id_direction[1] == False, data_determined_directions)))
-    ccw_run_ids_from_data = list(map(lambda cw_run_id_direction: cw_run_id_direction[0], filter(lambda run_id_direction: run_id_direction[1] == True, data_determined_directions)))
-    print("data determined cw directions", cw_run_ids_from_data)
-    print("data determined ccw directions", ccw_run_ids_from_data)
+    cw_run_ids = mmap(lambda cw_run_id_direction: cw_run_id_direction[0], filter(lambda run_id_direction: run_id_direction[1] == False, data_determined_directions))
+    ccw_run_ids = mmap(lambda cw_run_id_direction: cw_run_id_direction[0], filter(lambda run_id_direction: run_id_direction[1] == True, data_determined_directions))
 
     #if (len(cw_run_ids) != len(ccw_run_ids)):
     #    raise "Need to have the same number of cw and ccw runs"
