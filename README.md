@@ -103,25 +103,58 @@ Need two computers to collect clean data from this setup. One needs to be a lapt
 
 # Data analysis:
 
-1. Combine the collected `./calibration-data/[run_id]/raw_capture_data.jsonl` file `npm run combine:rotation-voltage-network-data --run_id=[run_id]`, you will recieve a file `merged_capture_data.csv` in the `./calibration-data/[run_id]` folder if successful, this program will report how well it matched records, high match rate is expect ~98% for good runs.
-2. Inspect the `./calibration-data/[run_id]/merged_capture_data.csv` file using the command and tune the kalman settings at the top (trial and error if nessesary, looking for kalman closely following the signal without to much noise).
+Depending on what type of motor controller you are implementing there are different analysis commands you need to run.
+The calibration library provides for 3 main types of motor controller:
+
+- 6 step, 3 phase H-Bridge, PWM motor controllers (Trapezoidal Commutation [TC])
+- 3 phase H-Bridge, sinusoidal fit (Sinudoidal model fit fom BEMF measurements) PWM motor controllers (Sinusoidal PWM [SPWM])
+- 3 phase H-Bridge, direct fit (fit direcly from BEMF measurements) PWM motor controllers (Direct PWM [DPWM])
+
+In either case the raw capture data needs to be merged from the ADC and Encoder microcontroller collected data (for each run) and the result processed to smooth out errors via the following procedure:
+
+## Combination and smoothing procedure:
+
+1. Combine the collected `./calibration-data/[run_id]/raw_capture_data.jsonl` file `npm run combine:rotation-voltage-network-data --run_id=[run_id]`, you will recieve a file `merged_capture_data.csv` in the `./calibration-data/[run_id]` folder if successful, this program will report how well it matched records, high match rate is expect ~98% for good runs. Less than 98% can indicate a loss of sync between the ADC and Encoder microcontroller data recorders, or other issues, try re-running a new trial experiment in this case and abandon the bad data capture.
+2. Inspect the `./calibration-data/[run_id]/merged_capture_data.csv` file using the following command and tune the kalman settings at the top of the relevant file `tune-rotation-voltage-data-smoothing.py` (trial and error if nessesary, looking for kalman closely following the signal without to much noise).
     - `npm run inspect:rotation-voltage-data --run_id=[run_id]`
-3. When you are happy with the quality of the kalman tuning, you can now smooth the data. This will create a `kalman_smoothed_merged_capture_data.json` file within `./calibration-data/[run_id]` folder, as well as a html report file `kalman_smoothed_merged_capture_data.html`.
+3. When you are happy with the quality of the kalman tuning, you can now commit to smooth the data and save it using the command following (make sure to apply the good Kalman constants from the `tune-rotation-voltage-data-smoothing.py` file to the top of the `smooth-rotation-voltage-data.py` file). This will create a `kalman_smoothed_merged_capture_data.json` file within `./calibration-data/[run_id]` folder, as well as a html report file `kalman_smoothed_merged_capture_data.html`.
     - `npm run smooth:rotation-voltage-data --run_id=[run_id]`
-4. With data now smoothed to minimise zero-crossing detection errors you can apply zero-crossing detection. This will create a `zero_crossing_detections.channels.all.json` which contains grouped lists of angles for each channel cluster e.g. 'zc_channel_af_data' which stands for zero crossing channel phase A falling, where a given phaseA-vn crossed zero. Also a `zero_crossing_detections.histogram.all.json` file will be created which contains any zero crossing events for each channel organised by angle.
+4. Make sure to process inspect the resulting `kalman_smoothed_merged_capture_data.html` file to manually check that there are no artifacts. There are many types of possible artifacts, one channel being higher or lower than the other two channels (indicating a problem with the motor connectors), excessive noise in the data collection (many possible reasons for this, try again), and a loss of sync between the ADC and the Encoder recordings, observable discontinuity in the encoder saw tooth pattern (bad luck! try again).
+
+Examples of good captures:
+  - [Good ADC / Encoder capture with Kalman filtering example output of smooth:rotation-voltage-data for a motor with approximately a sinusoidal bemf motor (A2212)](./dist/kalman_smoothed_merged_capture_data.html)
+  - [Good ADC / Encoder with a Kalman filtered example output of smooth:rotation-voltage-data for a motor with a trapazodial bemf motor (Tarot 4006)](file:///home/jonathan/code/kaepek/calibration/calibration-data/tarot4006_sept_12_23_cw_3/kalman_smoothed_merged_capture_data.html)
+
+Examples of bad captures:
+  - [Bad capture example 1- High noise](file:///home/jonathan/code/kaepek/calibration/calibration-data/a2212_jul_26_2s_cw_1/kalman_smoothed_merged_capture_data.html)
+  - [Bad capture example 2 - One channel higher](file:///home/jonathan/code/kaepek/calibration/calibration-data/a2212_oct_21_cw_1/kalman_smoothed_merged_capture_data.html)
+  - [Sync loss with one channel also higher](file:///home/jonathan/code/kaepek/calibration/calibration-data/a2212_oct_21_ccw_1/kalman_smoothed_merged_capture_data.html)
+  - [Dead channel](file:///home/jonathan/code/kaepek/calibration/calibration-data/a2212_mar_14_2s_cw/kalman_smoothed_merged_capture_data.html)
+
+Then depending on which motor controller you are implementing (TC, SPWM, DPWM) you need to follow the relevant section:
+
+## TC procedure
+
+1. With data now smoothed to minimise zero-crossing detection errors you can apply zero-crossing detection. This will create a `zero_crossing_detections.channels.all.json` which contains grouped lists of angles for each channel cluster e.g. 'zc_channel_af_data' which stands for zero crossing channel phase A falling, where a given phaseA-vn crossed zero. Also a `zero_crossing_detections.histogram.all.json` file will be created which contains any zero crossing events for each channel organised by angle.
   - `npm run detect:zero-crossing --run_id=[run_id]`
-5. Now for each channel we should have `motor_poles/2` zero-crossing events, noise will prevent us knowing the exact angle where this happenes, we will in fact have a distribtion of points clustered around `motor_poles/2` centers... thus we can cluster the zero-crossing events into `motor_poles/2` groups. This will create a `kmedoids_clustered_zero_crossing_channel_detections.all.json` files, containing the clustered angles and their centroids (mean points) for each channel.
+2. Now for each channel we should have `motor_poles/2` zero-crossing events, noise will prevent us knowing the exact angle where this happenes, we will in fact have a distribtion of points clustered around `motor_poles/2` centers... thus we can cluster the zero-crossing events into `motor_poles/2` groups. This will create a `kmedoids_clustered_zero_crossing_channel_detections.all.json` files, containing the clustered angles and their centroids (mean points) for each channel.
   - `npm run cluster:zero-crossing --run_id=sept2 --number_of_poles=14`.
-6. Next we need to analyse how well the clustering went. Important metrics will be the mean point of each cluster, the standard deviation of each cluster and finally we need a map which identifes for each angle which channel cluster represents that point best if any. The following file is created showing this data `kmedoids_clustered_zero_crossing_channel_detections.all.analysis.json`.
+3. Next we need to analyse how well the clustering went. Important metrics will be the mean point of each cluster, the standard deviation of each cluster and finally we need a map which identifes for each angle which channel cluster represents that point best if any. The following file is created showing this data `kmedoids_clustered_zero_crossing_channel_detections.all.analysis.json`.
   - `npm run analyse:zero-crossing-channel-clusters --run_id=sept2`
-7. Next we need to see the results of the analysis, also we need to use the statistics generated to eliminate cluster outliers a program is provided to do this. A file `zero_crossing_detections.channels.outliers.json` is produced which contains the outliers detected for each channel, a file `zero_crossing_detections.channels.inliers.json` is produces which contain valid inliers per channel and finally a report file `zero_crossing_detections.channels.all.html` is generated to visualise this analysis.
+4. Next we need to see the results of the analysis, also we need to use the statistics generated to eliminate cluster outliers a program is provided to do this. A file `zero_crossing_detections.channels.outliers.json` is produced which contains the outliers detected for each channel, a file `zero_crossing_detections.channels.inliers.json` is produces which contain valid inliers per channel and finally a report file `zero_crossing_detections.channels.all.html` is generated to visualise this analysis.
   - `npm run inspect:zero-crossing --run_id=sept2`
-8. Next with the outliers removed from the dataset and stored in their own file `zero_crossing_detections.channels.inliers.json`, we need to re-cluster the channels into `motor_poles/2` groups again to create a new file `kmedoids_clustered_zero_crossing_channel_detections.inliers.json`.
+5. Next with the outliers removed from the dataset and stored in their own file `zero_crossing_detections.channels.inliers.json`, we need to re-cluster the channels into `motor_poles/2` groups again to create a new file `kmedoids_clustered_zero_crossing_channel_detections.inliers.json`.
   - `npm run cluster-inliers:zero-crossing --run_id=sept2 --number_of_poles=14`
-9. Next we need to re-analyse the re-clustered channel zero-crossing angles to create a new analysis file `kmedoids_clustered_zero_crossing_channel_detections.inliers.analysis.json`.
+6. Next we need to re-analyse the re-clustered channel zero-crossing angles to create a new analysis file `kmedoids_clustered_zero_crossing_channel_detections.inliers.analysis.json`.
   - `npm run analyse-inliers:zero-crossing-channel-clusters --run_id=sept2`
-10. Next we need to see the results of the re-analysis post outlier elimination.
+7. Next we need to see the results of the re-analysis post outlier elimination.
   - `npm run inspect-inliers:zero-crossing --run_id=sept2`
+
+## SPWM procedure
+
+## DPWM procedure
+
+
 
 [Good ADC capture with Kalman filtering example output of smooth:rotation-voltage-data](./dist/kalman_smoothed_merged_capture_data.html)
 
