@@ -69,11 +69,6 @@ def random_id():
 
 def combine_merged_smoothed_datasets(run_ids):
     print("run_ids", run_ids)
-    #cw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == False, run_ids))
-    #ccw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == True, run_ids))
-
-    #print("name determined cw directions", cw_run_ids)
-    #print("name determined ccw directions", ccw_run_ids)
 
     data_determined_directions = list(map(lambda run_id: [run_id, determine_direction_from_data(run_id)], run_ids))
     cw_run_ids = mmap(lambda cw_run_id_direction: cw_run_id_direction[0], filter(lambda run_id_direction: run_id_direction[1] == False, data_determined_directions))
@@ -139,7 +134,7 @@ def combine_merged_smoothed_datasets(run_ids):
         # 
 
         for run_id, times, angles, anvns, bnvns, cnvns in raw:
-            run_direction = determine_direction(run_id) #False is cw True is ccw
+            run_direction = merge_direction #False is cw True is ccw
             (anvns, bnvns, cnvns) = mute_neg_voltages(merge_direction, run_direction, anvns, bnvns, cnvns)
             angles_bin = np.concatenate((angles_bin, angles), axis=0)
             anvn_bin = np.concatenate((anvn_bin, anvns), axis=0)
@@ -147,7 +142,7 @@ def combine_merged_smoothed_datasets(run_ids):
             cnvn_bin = np.concatenate((cnvn_bin, cnvns), axis=0)
 
         for run_id, times, angles, anvns, bnvns, cnvns in mapped:
-            run_direction = determine_direction(run_id) #False is cw True is ccw
+            run_direction = True if merge_direction == False else False #False is cw True is ccw
             (anvns, bnvns, cnvns) = mute_neg_voltages(merge_direction, run_direction, anvns, bnvns, cnvns)
             angles_bin = np.concatenate((angles_bin, angles), axis=0)
             anvn_bin = np.concatenate((anvn_bin, anvns), axis=0)
@@ -160,6 +155,7 @@ def combine_merged_smoothed_datasets(run_ids):
     ccw_data = merge_direction("ccw", ccw_data_raw, cw_data_mapped_to_ccw)
     return {"cw": cw_data, "ccw": ccw_data}
 
+# deprecated!
 def combine_merged_smoothed_datasets_2(run_ids):
     print("run_ids", run_ids)
     cw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == False, run_ids))
