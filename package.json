@@ -26,6 +26,8 @@
     "combine-datasets:zero-crossing-inliers": "python3 combine-rotation-datasets-cw-and-ccw.py ${npm_config_run_ids}",
     "fit-sine:zc": "python3 analysis-zc-reconstruct.py ${npm_config_combination_identifier} ${npm_config_number_of_poles}",
     "fit-sine:raw": "python3 analysis-raw-reconstruct.py ${npm_config_combination_identifier} ${npm_config_number_of_poles}",
+    "fit-direct-solo:raw": "python3 analysis-raw-reconstruct-direct-solo.py ${npm_config_run_ids}",
+    "graph-direct-solo:raw": "kaepek-io-graph-file -i \"./calibration-data/combination-direct-comp2-fit-$(cat ./calibration-data/tmp_last_combination).csv\" -c ./configs/direct_fit_graphs.json",
     "fit-direct:raw": "python3 analysis-raw-reconstruct-direct.py ${npm_config_combination_identifier} && kaepek-io-graph-file -i ./calibration-data/combination-direct-fit-${npm_config_combination_identifier}.csv -c ./configs/direct_fit_graphs.json"
   },
   "repository": {

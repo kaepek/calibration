@@ -183,6 +183,8 @@ The SPWM procedure will take the results from the TC/Smoothing procedure and do 
 
 Note the `fit-sine:zc` benefits from significant outlier reduction and so in most cases represents the superior method to obtaining the motor constant fits. Depending on the sinusoidal fit method run one can either obtains the motor constants from the following files in the [calibration folder](./calibration-data/), `zc_reconstruction_lqwkwldkjpvgmrbeqcop.png` which is the output of running the `fit-sine:zc` program or `raw_reconstruction_ynitlldoqesyyvgyuwyg.png` which is the ouput of running the `fit-sine:raw` program.
 
+#### TODO CHECK FILE NAMES
+
 The motor constants and their errors can be obtained in the title of the graph, you can inspect the graphs (the source data and the fit) and compare their extrema to gain some intuition as to the validity of the fit.
 
 Note these methods do assume that the motors are periodically consistant, which is often not the case in reality.
@@ -194,36 +196,9 @@ To deal with the inadequacies of the SPWM fitting method arising from the fact t
 This procedure offer the most efficient motor controller model fit of any of the methods proposed here, as the motor phase voltages are played back from direct recordings of the bemf and thus track them quite accurately.
 
 0. Run the (Combination and smoothing procedure)[]
-
-### TODO PROGRAM WITHOUT COMBINTATION IDENTIFIER INPUT.
-
-
-[Good ADC capture with Kalman filtering example output of smooth:rotation-voltage-data](./dist/kalman_smoothed_merged_capture_data.html)
-
-# Analysis super command
-
-`npm run perform-tc-analysis --run_id=[run_id] --number_of_poles=[number of poles]`
-
-`npm run perform-tc-analysis --run_id=16sept_4_cw --number_of_poles=22`
-`npm run perform-tc-analysis --run_id=16sept_ccw --number_of_poles=22`
-
-# Combing cw/ccw runs
-
-`npm run combine-datasets:zero-crossing-inliers --run_ids=16sept_ccw,16sept_4_cw`
-
-# Analysing the combined reports
-
-So when generating a report a html file and an id file will be created with an identifier e.g.
-`combination-report-lqwkwldkjpvgmrbeqcop.id` where `lqwkwldkjpvgmrbeqcop` would be the identifier for
-a set of results.
-
-One can fit a sine wave to the zc data:
-
-`npm run fit-sine:zc --combination_identifier=lqwkwldkjpvgmrbeqcop --number_of_poles=22`
-
-One can fit a sine wave to the raw voltage data:
-
-`npm run fit-sine:raw --combination_identifier=lqwkwldkjpvgmrbeqcop --number_of_poles=22`
+1. Run a direct fit:
+    - If you have already run a TC procedure prior to this analysis you may run the following example command: `npm run fit-direct:raw --combination_identifier=lqwkwldkjpvgmrbeqcop`
+    - Otherwise you can directly obtain a fit using the following example command: `npm run fit-direct-solo:raw --run_ids=16sept_ccw,16sept_4_cw && npm run graph-direct-solo:raw`, you will obtain an output html, png and c++ file e.g. `combination-direct-comp2-fit-ewgtelyqvgfuvropsmif.csv.html`, `raw_reconstruction_direct_comp2_ewgtelyqvgfuvropsmif.png`, `combination-direct-comp2-fit-ewgtelyqvgfuvropsmif.cpp`
 
 # Troubleshooting:
 
@@ -236,7 +211,9 @@ One can fit a sine wave to the raw voltage data:
 # Documentation
 Requires running `npm run generate:docs`
 
--  [JS Docs](../docs/global.html)
+-  [JS Docs](./docs/global.html)
+
+#### TODO Python Docs
 
 # 3rd party useful component information:
 
@@ -247,3 +224,12 @@ Requires running `npm run generate:docs`
 ## AS5147P Encoder
 
 - [Datasheet](https://ams.com/documents/20143/36005/AS5147P_DS000328_2-00.pdf)
+
+# Todos:
+
+- Check file names
+- Stop talking about laptops (just mention they cannot share a ground e.g. be connected via ethernet etc)
+- Upload examples of bad / good plots
+- Self linking in the readme to sections
+- Re-test everything watch out where i have renamed files outputs
+- add disclaimer as to quality
