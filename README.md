@@ -189,7 +189,13 @@ Note these methods do assume that the motors are periodically consistant, which 
 
 ### DPWM procedure
 
+To deal with the inadequacies of the SPWM fitting method arising from the fact that no motors are in fact manufactured perfectly (discrepancies in motor pole strength and inperfect pole spacing) the direct bemf fit method is implemented here. This precedure takes the raw combination data (bemf voltage and angle data) for each run and then superimposes the data (grouped by the encoder angle) and then averages the for each angle the voltage, it applies a normalisation per channel such that one can obtain a single lookup table per direction per phase which informs the motor controller what duty to apply given an input encoder step at any given time. The normalised data can then be loaded into a relevant microcontroller and used the model used to drive the motor forward in a given direction.
+
+This procedure offer the most efficient motor controller model fit of any of the methods proposed here, as the motor phase voltages are played back from direct recordings of the bemf and thus track them quite accurately.
+
 0. Run the (Combination and smoothing procedure)[]
+
+### TODO PROGRAM WITHOUT COMBINTATION IDENTIFIER INPUT.
 
 
 [Good ADC capture with Kalman filtering example output of smooth:rotation-voltage-data](./dist/kalman_smoothed_merged_capture_data.html)
