@@ -27,6 +27,28 @@ def determine_direction(run_id):
     else:
         raise Exception("No idea what direction we are going from the file: " + run_id)
 
+def determine_direction_from_data(run_id):
+    data = get_smoothed_voltage_data(run_id)
+    # the 2nd element in the list of lists is the angle data
+    angle_data = data[1]
+    last_angle = None
+    direction_polarity = []
+    for angle in angle_data:
+        if (last_angle is not None):
+            polarity = angle - last_angle
+            abs_polarity = abs(polarity)
+            polarity = 0.0 if abs_polarity == 0 else polarity / abs_polarity
+            direction_polarity.append(polarity)
+        last_angle = angle
+    most_common = max(set(direction_polarity), key = direction_polarity.count)
+    if (most_common < 0):
+        return True
+    else:
+        return False
+
+    
+
+
 def deg_to_rad(deg):
     return deg * np.pi/180
 
@@ -52,6 +74,16 @@ def combine_merged_smoothed_datasets(run_ids):
     print("run_ids", run_ids)
     cw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == False, run_ids))
     ccw_run_ids=list(filter(lambda run_id: determine_direction(run_id) == True, run_ids))
+
+    print("name determined cw directions", cw_run_ids)
+    print("name determined ccw directions", ccw_run_ids)
+
+    data_determined_directions = list(map(lambda run_id: [run_id, determine_direction_from_data(run_id)], run_ids))
+    cw_run_ids_from_data = list(map(lambda cw_run_id_direction: cw_run_id_direction[0], filter(lambda run_id_direction: run_id_direction[1] == False, data_determined_directions)))
+    ccw_run_ids_from_data = list(map(lambda cw_run_id_direction: cw_run_id_direction[0], filter(lambda run_id_direction: run_id_direction[1] == True, data_determined_directions)))
+    print("data determined cw directions", cw_run_ids_from_data)
+    print("data determined ccw directions", ccw_run_ids_from_data)
+
     #if (len(cw_run_ids) != len(ccw_run_ids)):
     #    raise "Need to have the same number of cw and ccw runs"
     # retrieve data from both datasets
