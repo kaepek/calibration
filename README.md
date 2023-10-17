@@ -72,7 +72,7 @@ Specific pin connections are mentioned below for reference:
 
 - Connect Teensy 4.0 #1 ground to pin 7 of KAEPEK-SBDLC-SMT#V2.4.0
 
-# Collecting ADC/Encoder data for calibration instructions
+# Collecting ADC Encoder data for calibration instructions
 
 ## Prerequisites to collection procedure
 
@@ -129,6 +129,7 @@ In either case the raw capture data needs to be combined from the ADC and Encode
 
 ## Combination and smoothing procedure
 
+0. Requires that data has been collected following the [data collection procedure](#collection-procedure)
 1. Combine the collected `./calibration-data/[run_id]/raw_capture_data.jsonl` file `npm run combine:rotation-voltage-network-data --run_id=[run_id]`, you will recieve a file `merged_capture_data.csv` in the `./calibration-data/[run_id]` folder if successful, this program will report how well it matched records, high match rate is expect ~98% for good runs. Less than 98% can indicate a loss of sync between the ADC and Encoder microcontroller data recorders, or other issues, try re-running a new trial experiment in this case and abandon the bad data capture.
 2. Inspect the `./calibration-data/[run_id]/merged_capture_data.csv` file using the following command and tune the kalman settings at the top of the relevant file `tune-rotation-voltage-data-smoothing.py` (trial and error if nessesary, looking for kalman closely following the signal without to much noise).
     - `npm run inspect:rotation-voltage-data --run_id=[run_id]`
