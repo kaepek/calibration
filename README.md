@@ -74,14 +74,14 @@ Specific pin connections are mentioned below for reference:
 
 # Collecting ADC/Encoder data for calibration instructions
 
-Need two computers to collect clean data from this setup. One needs to be a laptop (computer #1) which is disconnected from everything, networking via wifi nessesary.
+Need two computers to collect clean data from this setup. The computer must remain isolated from each other not sharing a ground connection (both cannot have ethernet connecting to the same device, stick to WiFi)
 
 1. Modify zero_crossing_adc.ino and set the PWM_FREQUENCY to full calibration logging speed e.g. 90kHz.
 2. Make sure zero_crossing_adc.ino has been loaded onto the Teensy 4.0 #1.
 3. Make sure AS5147P_teensy40.ino has been loaded onto the Teensy 4.0 #2.
 4. Find network address of computer #1 and computer #2 by running `ifconfig` or similar. e.g. '192.168.0.15'.
 5. Plug Teensy 4.0 #2 (Encoder) into computer #2.
-6. Plug Teensy 4.0 #1 (ADC) into computer #1 (needs to be a fully charged laptop disconnected from everything else apart from the Teensy [not ethernet allowed]).
+6. Plug Teensy 4.0 #1 (ADC) into computer #1
 7. Unplug and replug Teensy 4.0 #1 into computer #1 (forcing a reset).
 8. Start the network sync program on computer #1 and provide a name for this data collection run e.g. 'aug_18_test_1'. `npm run network-serial:collect-sync --run_id=aug_18_test_1`. 
 9. SSH to computer #2.
@@ -206,7 +206,6 @@ This procedure offer the most efficient motor controller model fit of any of the
   - Change permissions for Teensy device `sudo chmod a+rw /dev/ttyACM0`
 - One voltage channel 's(A,B,C) peak (in inspect) is larger than the other one.
   - Check circuit connections
-  - Disconnect laptop from mains.
 
 # Documentation
 Requires running `npm run generate:docs`
@@ -228,7 +227,6 @@ Requires running `npm run generate:docs`
 # Todos:
 
 - Check file names
-- Stop talking about laptops (just mention they cannot share a ground e.g. be connected via ethernet etc)
 - Upload examples of bad / good plots
 - Self linking in the readme to sections
 - Re-test everything watch out where i have renamed files outputs
