@@ -198,7 +198,7 @@ This procedure offer the most efficient motor controller model fit of any of the
 0. Run the [combination and smoothing procedure](#combination-and-smoothing-procedure)
 1. Run a direct fit:
     - If you have already run a TC procedure prior to this analysis you may run the following example command: `npm run fit-direct:raw --combination_identifier=lqwkwldkjpvgmrbeqcop`
-    - Otherwise you can directly obtain a fit using the following example command: `npm run fit-direct-solo:raw --run_ids=16sept_ccw,16sept_4_cw && npm run graph-direct-solo:raw`, you will obtain an output html, png and c++ file e.g. `combination-direct-comp2-fit-ewgtelyqvgfuvropsmif.csv.html`, `raw_reconstruction_direct_comp2_ewgtelyqvgfuvropsmif.png`, `combination-direct-comp2-fit-ewgtelyqvgfuvropsmif.cpp`
+    - Otherwise you can directly obtain a fit using the following example command: `npm run fit-direct-solo:raw --run_ids=16sept_ccw,16sept_4_cw && npm run graph-direct-solo:raw`, you will obtain an output html, png and c++ file e.g. `combination-direct-fit-ewgtelyqvgfuvropsmif.csv.html`, `raw_reconstruction_direct_comp2_ewgtelyqvgfuvropsmif.png`, `combination-direct-fit-ewgtelyqvgfuvropsmif.cpp`
 
 # Troubleshooting:
 
@@ -210,9 +210,8 @@ This procedure offer the most efficient motor controller model fit of any of the
 # Documentation
 Requires running `npm run generate:docs`
 
--  [JS Docs](./docs/global.html)
-
-#### TODO Python Docs
+- [JS Docs](./docs/global.html)
+- Python Docs (TODO)
 
 # 3rd party useful component information:
 
@@ -228,6 +227,5 @@ Requires running `npm run generate:docs`
 
 - Check file names
 - Upload examples of bad / good plots
-- Self linking in the readme to sections
 - Re-test everything watch out where i have renamed files outputs
 - add disclaimer as to quality

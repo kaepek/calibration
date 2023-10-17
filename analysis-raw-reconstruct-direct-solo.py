@@ -319,13 +319,13 @@ def generate_voltage_map():
         ]
         )
 
-with open("./calibration-data/combination-direct-comp2-fit-%s.json" % (combination_identifier), "w") as fout:
+with open("./calibration-data/combination-direct-fit-%s.json" % (combination_identifier), "w") as fout:
     fout.write(json.dumps(averaged_compressed_binned_angle_abc_data))
 
-with open("./calibration-data/combination-direct-comp2-fit-%s.csv" % (combination_identifier), "w") as fout:
+with open("./calibration-data/combination-direct-fit-%s.csv" % (combination_identifier), "w") as fout:
     fout.write(csv_data)
 
-with open("./calibration-data/combination-direct-comp2-fit-%s.cpp" % (combination_identifier), "w") as fout:
+with open("./calibration-data/combination-direct-fit-%s.cpp" % (combination_identifier), "w") as fout:
     fout.write(generate_voltage_map())
 
 cw_averaged_voltage_data = np.asarray([averaged_binned_angle_abc_data["cw"]["a"], averaged_binned_angle_abc_data["cw"]["b"], averaged_binned_angle_abc_data["cw"]["c"]]).ravel()
