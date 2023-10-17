@@ -18,17 +18,17 @@ Connection is made by simply connecting a 8 pin header ribbon cable between the 
 
 Specific pin connections are mentioned below for reference:
 
-### Encoder information table:
+### Encoder information table
 
 AS5147 pin| 5v| 3.3v| x| csn| clk| mosi| miso| GND
 :-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:
 Teensy 4.0 #2 pin| 3.3v| 3.3v| x| 10| 22| 11| 12| GND
 
-### Connecting Teensy 4.0 #1 with Teensy 4.0 #2 with two H11L1 optocouplers.
+### Connecting Teensy 4.0 #1 with Teensy 4.0 #2 with two H11L1 optocouplers
 
 Teensy 4.0 #1 acts as a master and sends signals via two galvanically isolated optocouplers to Teensy 4.0 #2. 
 
-### Connection information table:
+### Connection information table
 
 H11L1 #1 RESET pin| 1 (ANODE)| 2 (CATHODE)| 3(NC)| 4(Vo)| 5 (GND)| 6(VCC)
 :-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:
@@ -57,7 +57,7 @@ Connection is made by simply connecting the 13 pin header from the KAEPEK-SBDLC-
 
 Specific pin connections are mentioned below for reference:
 
-### ADC/ADC-ETC information table:
+### ADC/ADC-ETC information table
 
 | PHASE       | A   | B      | VN    | C     |
 |-------------|-----|--------|-------|-------|
@@ -72,7 +72,7 @@ Specific pin connections are mentioned below for reference:
 
 - Connect Teensy 4.0 #1 ground to pin 7 of KAEPEK-SBDLC-SMT#V2.4.0
 
-# Collecting ADC/Encoder data for calibration instructions.
+# Collecting ADC/Encoder data for calibration instructions
 
 Need two computers to collect clean data from this setup. One needs to be a laptop (computer #1) which is disconnected from everything, networking via wifi nessesary.
 
@@ -90,10 +90,10 @@ Need two computers to collect clean data from this setup. One needs to be a lapt
 12. Start the network source program on computer #1. `npm run network-serial:collect-source --device_id=0 --sync_host=0.0.0.0 --seconds_to_collect=2` .
 13. After you are happy enough data has been collected stop collection by unplugging Teensy 4.0 #1.
 14. Ensure `network-serial:collect-source` is stopped for both computers. By typing `Ctrl-c` into the relevant terminal sessions.
-15. At this point the `network-serial:collect-sync` will merge the dataset and create an output file `./calibration-data/[run_id].jsonl` on computer #1. If this does not work try manually merging the files, see the next section below, otherwise move on to data analysis.
+15. At this point the `network-serial:collect-sync` will merge the dataset and create an output file `./calibration-data/[run_id].jsonl` on computer #1. If this does not work try manually merging the files, see the next section below, otherwise move on to [data analysis section](#data-analysis).
 
 
-## Manually merging the datasets if network merge fails:
+## Manually merging the datasets if network merge fails
 
 1. Each source program will write to the `/tmp` folder before network transmission is attempted. Take the `/tmp/serial-data-device-[x].jsonl` file from the `/tmp` folder's from each computer and place into a folder under `./calibration-data/[experiment-name]/` of computer #1.
 2. Combine datasets into a single file `node calibration/combine-multicapture-files.js [experiment-name]`
@@ -101,9 +101,9 @@ Need two computers to collect clean data from this setup. One needs to be a lapt
 4. Combine the collected `[experiment-name].jsonl` `npm run combine:rotation-voltage-network-data --dataset=[experiment-name].jsonl`, you will recieve a file `[experiment-name].jsonl.matched.csv` if the successful, this program will report how successful it was in matching records high match rate is expect ~98%.
 5. Proceed from step 1 from the analysis instructions.
 
-This collection process must be performed for a number of experimental runs for each direction `clockwise` and `counter-clockwise`, I would recommend performing multiple runs in each direction, say atleast 3 in each direction. When performing the [Data analysis]() on each run you may find that some of the runs encountered issues and have artifacts in the collected data, in this case I would recommend repeating the collection process with a set of new experiments to replace the bad captures with good ones.
+This collection process must be performed for a number of experimental runs for each direction `clockwise` and `counter-clockwise`, I would recommend performing multiple runs in each direction, say atleast 3 in each direction. When performing the [data analysis section](#data-analysis) on each run you may find that some of the runs encountered issues and have artifacts in the collected data, in this case I would recommend repeating the collection process with a set of new experiments to replace the bad captures with good ones.
 
-# Data analysis:
+# Data analysis
 
 Depending on what type of motor controller you are implementing there are different analysis commands you need to run.
 The calibration library provides for 3 main types of motor controller:
@@ -145,7 +145,7 @@ Then depending on which motor controller you are implementing (TC, SPWM, DPWM) y
 
 The TC procdure will map angular segments of the motor to their commutation state. Such that microcontrollers can simply lookup the commutation state based on the angle that the encoder currently sits and therefore apply the correct commutation state as the motor proceeds around the circle. A map is generated for each direction.
 
-0. Run the (combination and smoothing procedure)[#combination-and-smoothing-procedure:]
+0. Run the [combination and smoothing procedure](#combination-and-smoothing-procedure)
 1. With data now smoothed to minimise zero-crossing detection errors you can apply zero-crossing detection. This will create a `zero_crossing_detections.channels.all.json` which contains grouped lists of angles for each channel cluster e.g. 'zc_channel_af_data' which stands for zero crossing channel phase A falling, where a given phaseA-vn crossed zero. Also a `zero_crossing_detections.histogram.all.json` file will be created which contains any zero crossing events for each channel organised by angle.
   - `npm run detect:zero-crossing --run_id=[run_id]`
 2. Now for each channel we should have `motor_poles/2` zero-crossing events, noise will prevent us knowing the exact angle where this happenes, we will in fact have a distribtion of points clustered around `motor_poles/2` centers... thus we can cluster the zero-crossing events into `motor_poles/2` groups. This will create a `kmedoids_clustered_zero_crossing_channel_detections.all.json` files, containing the clustered angles and their centroids (mean points) for each channel.
@@ -176,7 +176,7 @@ A html file e.g. `combination-report-lqwkwldkjpvgmrbeqcop.html`, an id file e.g.
 
 The SPWM procedure will take the results from the TC/Smoothing procedure and do its best to fit 3 sinusoids to the data (for each phase), for each direction an angular displacement (degrees away from the 0th encoder step) and an angular phase displacement (the phase seperation between the 3 phases) which leads to the least squares error. Thus the motor constants can be used to create a lookup table within the motor controller so that for each direction the controller can apply an appropriate duty for each phase give an input which is the encoder step at any given time.
 
-1. Peform the same instructions as the [TC procedure section]()
+1. Peform the same instructions as the [TC procedure section](#tc-procedure)
 2. Fit a sinusoid model to the data using either of the following commands:
     - Fit a sine wave to the zero crossing data obtained from the TC procedure: `npm run fit-sine:zc --combination_identifier=lqwkwldkjpvgmrbeqcop --number_of_poles=22`
     - Fit a sine wave to the raw zero crossing data obtained from the TC procedure: `npm run fit-sine:raw --combination_identifier=lqwkwldkjpvgmrbeqcop --number_of_poles=22`
@@ -195,7 +195,7 @@ To deal with the inadequacies of the SPWM fitting method arising from the fact t
 
 This procedure offer the most efficient motor controller model fit of any of the methods proposed here, as the motor phase voltages are played back from direct recordings of the bemf and thus track them quite accurately.
 
-0. Run the (Combination and smoothing procedure)[]
+0. Run the [combination and smoothing procedure](#combination-and-smoothing-procedure)
 1. Run a direct fit:
     - If you have already run a TC procedure prior to this analysis you may run the following example command: `npm run fit-direct:raw --combination_identifier=lqwkwldkjpvgmrbeqcop`
     - Otherwise you can directly obtain a fit using the following example command: `npm run fit-direct-solo:raw --run_ids=16sept_ccw,16sept_4_cw && npm run graph-direct-solo:raw`, you will obtain an output html, png and c++ file e.g. `combination-direct-comp2-fit-ewgtelyqvgfuvropsmif.csv.html`, `raw_reconstruction_direct_comp2_ewgtelyqvgfuvropsmif.png`, `combination-direct-comp2-fit-ewgtelyqvgfuvropsmif.cpp`
