@@ -74,7 +74,14 @@ Specific pin connections are mentioned below for reference:
 
 # Collecting ADC/Encoder data for calibration instructions
 
-Need two computers to collect clean data from this setup. The computer must remain isolated from each other not sharing a ground connection (both cannot have ethernet connecting to the same device, stick to WiFi)
+## Prerequisites to collection procedure
+
+Need two computers to collect clean data from this setup. The computer must remain isolated from each other not sharing a ground connection (both cannot have ethernet connecting to the same device, stick to WiFi).
+
+- Install node.js (v18.12.1) and npm (8.19.2) have been checked to work.
+- Run `npm install` in the projects root directory.
+
+## Collection procedure
 
 1. Modify zero_crossing_adc.ino and set the PWM_FREQUENCY to full calibration logging speed e.g. 90kHz.
 2. Make sure zero_crossing_adc.ino has been loaded onto the Teensy 4.0 #1.
@@ -114,6 +121,12 @@ The calibration library provides for 3 main types of motor controller:
 
 In either case the raw capture data needs to be combined from the ADC and Encoder microcontroller collected data (for each run) and the result processed to smooth out errors via the [combination and smoothing procedure](#combination-and-smoothing-procedure)
 
+## Prerequisites to performing any Data analysis
+
+- Create a virtual environment: `npm run install:venv`
+- Source the virtual environment (must be active before running analysis or for each new terminal session): `source env/bin/activate`
+- Install the virtual environment dependancies: `npm run install:venv-deps`
+
 ## Combination and smoothing procedure
 
 1. Combine the collected `./calibration-data/[run_id]/raw_capture_data.jsonl` file `npm run combine:rotation-voltage-network-data --run_id=[run_id]`, you will recieve a file `merged_capture_data.csv` in the `./calibration-data/[run_id]` folder if successful, this program will report how well it matched records, high match rate is expect ~98% for good runs. Less than 98% can indicate a loss of sync between the ADC and Encoder microcontroller data recorders, or other issues, try re-running a new trial experiment in this case and abandon the bad data capture.
@@ -144,6 +157,8 @@ Then depending on which motor controller you are implementing (TC, SPWM, DPWM) y
 ### TC procedure
 
 The TC procdure will map angular segments of the motor to their commutation state. Such that microcontrollers can simply lookup the commutation state based on the angle that the encoder currently sits and therefore apply the correct commutation state as the motor proceeds around the circle. A map is generated for each direction.
+
+The TC procedure require Apache Spark installation v3.2.1 and Spark must be running locally by running the relevant start script e.g. `./spark-3.2.1-bin-hadoop2.7/sbin/start-all.sh`
 
 0. Run the [combination and smoothing procedure](#combination-and-smoothing-procedure)
 1. With data now smoothed to minimise zero-crossing detection errors you can apply zero-crossing detection. This will create a `zero_crossing_detections.channels.all.json` which contains grouped lists of angles for each channel cluster e.g. 'zc_channel_af_data' which stands for zero crossing channel phase A falling, where a given phaseA-vn crossed zero. Also a `zero_crossing_detections.histogram.all.json` file will be created which contains any zero crossing events for each channel organised by angle.
