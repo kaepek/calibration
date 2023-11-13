@@ -139,13 +139,13 @@ In either case the raw capture data needs to be combined from the ADC and Encode
 
 Examples of good captures:
   - [Good ADC / Encoder capture with Kalman filtering example output of smooth:rotation-voltage-data for a motor with approximately a sinusoidal bemf motor (A2212)](./dist/kalman_smoothed_merged_capture_data.html)
-  - [Good ADC / Encoder with a Kalman filtered example output of smooth:rotation-voltage-data for a motor with a trapazodial bemf motor (Tarot 4006)](file:///home/jonathan/code/kaepek/calibration/calibration-data/tarot4006_sept_12_23_cw_3/kalman_smoothed_merged_capture_data.html)
+  - [Good ADC / Encoder with a Kalman filtered example output of smooth:rotation-voltage-data for a motor with a trapazodial bemf motor (Tarot 4006)](./dist/kalman_smoothed_merged_capture_data_tarot4006_sept_12_23_cw_3_trapazodial.html)
 
 Examples of bad captures:
-  - [Bad capture example 1- High noise](file:///home/jonathan/code/kaepek/calibration/calibration-data/a2212_jul_26_2s_cw_1/kalman_smoothed_merged_capture_data.html)
-  - [Bad capture example 2 - One channel higher](file:///home/jonathan/code/kaepek/calibration/calibration-data/a2212_oct_21_cw_1/kalman_smoothed_merged_capture_data.html)
-  - [Sync loss with one channel also higher](file:///home/jonathan/code/kaepek/calibration/calibration-data/a2212_oct_21_ccw_1/kalman_smoothed_merged_capture_data.html)
-  - [Dead channel](file:///home/jonathan/code/kaepek/calibration/calibration-data/a2212_mar_14_2s_cw/kalman_smoothed_merged_capture_data.html)
+  - [Bad capture example 1- High noise](./dist/kalman_smoothed_merged_capture_data_a2212_jul_26_2s_cw_1_high_noise.html)
+  - [Bad capture example 2 - One channel higher](./dist/kalman_smoothed_merged_capture_data_a2212_oct_21_cw_1_higher_channel.html)
+  - [Sync loss with one channel also higher](./dist/kalman_smoothed_merged_capture_data_a2212_oct_21_ccw_1_sync_loss.html)
+  - [Dead channel](./dist/kalman_smoothed_merged_capture_data_a2212_mar_14_2s_cw_dead_channel.html)
 
 For convenience one can run the combination and smoothing process with existing settings (determined by trial and error) using the following command (make sure to check the `kalman_smoothed_merged_capture_data.html` file! This step is not easily automatable):
 
