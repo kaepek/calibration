@@ -92,7 +92,7 @@ def zc_channel_kernel_falling(v: pd.Series) -> float:
 # Define kalman measurements dataframe.
 rotation_voltage_df = sc.parallelize(zipped_data).toDF(["idx", "angle", "a", "b", "c"])
 
-w = Window.rowsBetween(-kernel_midpoint, kernel_midpoint) # .partitionBy("idx")
+w = Window.rowsBetween(-kernel_midpoint, kernel_midpoint) # .partitionBy("angle")
 
 # Apply zero detectors to each channel.
 rotation_voltage_df = rotation_voltage_df.withColumn('kernel_a_rising', zc_channel_kernel_rising("a").over(w))

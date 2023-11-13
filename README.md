@@ -80,6 +80,7 @@ Need two computers to collect clean data from this setup. The computer must rema
 
 - Install node.js (v18.12.1) and npm (8.19.2) have been checked to work.
 - Run `npm install` in the projects root directory.
+- Install [`kaepek-io`](https://github.com/kaepek/io) as per the README instructions.
 
 ## Collection procedure
 
