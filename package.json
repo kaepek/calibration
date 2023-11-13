@@ -36,7 +36,7 @@
   },
   "config": {
     "spark": {
-      "master": "spark://localhost:6060",
+      "master": "spark://127.0.1.1:7077",
       "local-interface": "lo",
       "project_file_dependencies": [
         "kmedoids2.py",

@@ -159,7 +159,7 @@ Then depending on which motor controller you are implementing (TC, SPWM, DPWM) y
 
 The TC procdure will map angular segments of the motor to their commutation state. Such that microcontrollers can simply lookup the commutation state based on the angle that the encoder currently sits and therefore apply the correct commutation state as the motor proceeds around the circle. A map is generated for each direction.
 
-The TC procedure require Apache Spark installation v3.2.1 and Spark must be running locally by running the relevant start script e.g. `./spark-3.2.1-bin-hadoop2.7/sbin/start-all.sh`
+The TC procedure require Apache Spark installation v3.5.0 and Spark must be running locally by running the relevant start script e.g. `./spark-3.5.0-bin-hadoop3/sbin/start-all.sh`. Configure the `package.json` spark master url etc.
 
 0. Run the [combination and smoothing procedure](#combination-and-smoothing-procedure)
 1. With data now smoothed to minimise zero-crossing detection errors you can apply zero-crossing detection. This will create a `zero_crossing_detections.channels.all.json` which contains grouped lists of angles for each channel cluster e.g. 'zc_channel_af_data' which stands for zero crossing channel phase A falling, where a given phaseA-vn crossed zero. Also a `zero_crossing_detections.histogram.all.json` file will be created which contains any zero crossing events for each channel organised by angle.

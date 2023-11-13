@@ -1,4 +1,3 @@
-from pyspark.sql import SQLContext
 from pyspark.sql import Window
 from pyspark.sql.functions import pandas_udf
 import spark_context as spark_context
@@ -28,7 +27,6 @@ zipped_data = list(zip(*data)) # [[idx, kalman_angle, kalman_a_minus_vn, kalman_
 
 # Get spark context.
 sc = spark_context.get_spark_context()
-SQLContext = SQLContext(sc)
 
 # Create kernel for zero_crossing detection, -1 means require negative, +1 require positive, 0 ignore value.
 rising_zero_crossing_kernel = [-1.0, 0.0, 1.0]
@@ -92,9 +90,9 @@ def zc_channel_kernel_falling(v: pd.Series) -> float:
         return 0
 
 # Define kalman measurements dataframe.
-# [[idx, kalman_angle, kalman_a_minus_vn, kalman_b_minus_vn, kalman_c_minus_vn],[...],...]
-rotation_voltage_df = SQLContext.createDataFrame(zipped_data, ("idx", "angle", "a", "b", "c"))
-w = Window.rowsBetween(-kernel_midpoint, kernel_midpoint)
+rotation_voltage_df = sc.parallelize(zipped_data).toDF(["idx", "angle", "a", "b", "c"])
+
+w = Window.rowsBetween(-kernel_midpoint, kernel_midpoint) # .partitionBy("idx")
 
 # Apply zero detectors to each channel.
 rotation_voltage_df = rotation_voltage_df.withColumn('kernel_a_rising', zc_channel_kernel_rising("a").over(w))
@@ -221,5 +219,4 @@ expected_number_channel_clusters = int(pole_count/2)
 # determine sequence direction (cw or ccw) and validate that it is consistant throughout the sample.
 
 # save this data if it validated ok
-
 

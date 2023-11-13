@@ -1,9 +1,9 @@
 import pyspark
-from pyspark.conf import SparkConf
 import json
 import os
 import socket
 import netifaces as ni
+from pyspark.sql import SparkSession
 
 with open("package.json") as fin:
     package_data = fin.read()
@@ -23,26 +23,12 @@ def get_spark_context():
     match = matches[0]
     ip = ni.ifaddresses(match)[ni.AF_INET][0]['addr']
 
-    conf = SparkConf()
-
-    # todo auto config master
-    conf.setMaster(spark_config["master"]).setAppName("Calibration")
-    conf.set("spark.executor.instances", "4")
-    conf.set("spark.executor.cores", "4")
-    # .set("spark.executor.instances", "4")
-    #conf.get("spark.master")
-    #conf.get("spark.app.name")
-    #conf.set("spark.driver.host", "10.0.0.109")
-    #conf.set("spark.driver.bindAddress", "10.0.0.109")
+    sc = SparkSession.builder.master(spark_config["master"]).appName("Calibration")\
+        .config("spark.executor.instances", "4")\
+        .config("spark.executor.cores", "4")\
+        .getOrCreate().sparkContext
 
     os.environ["SPARK_LOCAL_IP"] = ip# "10.0.0.109"
-
-    #print("conf.spark.app.name",conf.get("spark.app.name"))
-    #print("spark.driver.host",conf.get("spark.driver.host"))
-    #print("spark.driver.bindAddress",conf.get("spark.driver.bindAddress"))
-
-    # connect to spark master
-    sc = pyspark.SparkContext(conf=conf)
 
     for dep_file_path in spark_config["project_file_dependencies"]:
         sc.addFile(dep_file_path)
