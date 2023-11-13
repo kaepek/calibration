@@ -245,3 +245,27 @@ Requires running `npm run generate:docs`
 - Upload examples of bad / good plots
 - Re-test everything watch out where i have renamed files outputs
 - add disclaimer as to quality
+
+# How to prepare the Teensy40 platform:
+- Install [Arduino IDE v1.8.19](https://www.arduino.cc/en/software)
+- Install [Teensyduino v2.1.0](https://www.pjrc.com/teensy/teensyduino.html)
+
+# General dependancies:
+
+- [Arduino.h](https://github.com/arduino/ArduinoCore-avr)
+- [imxrt.h](https://github.com/PaulStoffregen/cores/tree/master)
+- [Serialport](https://github.com/serialport/node-serialport/blob/main/LICENSE)
+- [Bokeh](https://github.com/bokeh/bokeh/blob/branch-3.4/LICENSE.txt)
+- [Typed struct](https://github.com/sarakusha/typed-struct/blob/main/LICENSE)
+- [Extensionless](https://github.com/barhun/extensionless/blob/main/LICENSE)
+- [Cross var](https://github.com/elijahmanor/cross-var/blob/master/LICENSE)
+- [JS promise socket](https://github.com/dex4er/js-promise-socket)
+- [JS Doc](https://github.com/jsdoc/jsdoc/blob/main/LICENSE)
+- [Numpy](https://github.com/numpy/numpy/blob/main/LICENSE.txt)
+- [Pandas](https://github.com/pandas-dev/pandas)
+- [Spark](https://github.com/apache/spark/blob/master/LICENSE)
+- [netifaces](https://alastairs-place.net/projects/netifaces/)
+- [pyarrow](https://github.com/apache/arrow/blob/main/LICENSE.txt)
+- [scipy](https://github.com/scipy/scipy)
+- [colour](https://github.com/vaab/colour/blob/master/LICENSE)
+- [matplotlib](https://github.com/matplotlib/matplotlib)
